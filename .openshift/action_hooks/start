@@ -2,4 +2,14 @@
 # The logic to start up your application should be put in this
 # script. The application will work only if it binds to
 # $OPENSHIFT_DIY_IP:8080
-nohup $OPENSHIFT_REPO_DIR/diy/testrubyserver.rb $OPENSHIFT_DIY_IP $OPENSHIFT_REPO_DIR/diy |& /usr/bin/logshifter -tag diy &
+
+#!/bin/bash
+# The logic to start up your application should be put in this
+# script. The application will work only if it binds to
+# $OPENSHIFT_DIY_IP:8080
+IVY_DIR=$OPENSHIFT_DATA_DIR/.ivy2
+mkdir -p $IVY_DIR
+chown $OPENSHIFT_GEAR_UUID.$OPENSHIFT_GEAR_UUID -R "$IVY_DIR"
+cd $OPENSHIFT_REPO_DIR/app
+sbt/sbt xitrum-package
+nohup $OPENSHIFT_REPO_DIR/app/target/xitrum/script/runner quickstart.Boot >> nohup.out 2>&1 & echo $! > $OPENSHIFT_REPO_DIR/xitrum.pid &
